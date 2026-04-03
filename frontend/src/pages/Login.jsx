@@ -76,8 +76,12 @@ const Login = () => {
         width: isMobile ? "100vw" : "100%",
         boxSizing: "border-box",
         fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
-        background: isMobile ? "var(--shell-bg)" : "transparent",
-        color: "var(--shell-text)",
+        background: isMobile
+          ? isDark
+            ? "linear-gradient(180deg, #09111f 0%, #0f172a 100%)"
+            : "linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%)"
+          : "transparent",
+        color: "#0f172a",
       }}
     >
       {!isMobile && (
@@ -225,7 +229,9 @@ const Login = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(180deg, #fafbff 0%, #f0f4ff 100%)",
+          background: isDark
+            ? "linear-gradient(180deg, #0b1220 0%, #101a30 48%, #0f172a 100%)"
+            : "linear-gradient(180deg, #fafbff 0%, #f0f4ff 100%)",
           padding: isMobile ? 0 : 48,
           position: "relative",
           boxSizing: "border-box",
@@ -244,7 +250,7 @@ const Login = () => {
             borderRadius: 14,
             border: "1px solid var(--panel-border)",
             background: "var(--panel-strong)",
-            color: "var(--shell-text)",
+            color: "#0f172a",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -261,8 +267,10 @@ const Login = () => {
             style={{
               position: "absolute",
               inset: 0,
-              opacity: 0.04,
-              backgroundImage: "radial-gradient(circle at 1px 1px, #1e3a5f 1px, transparent 0)",
+              opacity: isDark ? 0.08 : 0.04,
+              backgroundImage: isDark
+                ? "radial-gradient(circle at 1px 1px, rgba(148,163,184,0.45) 1px, transparent 0)"
+                : "radial-gradient(circle at 1px 1px, #1e3a5f 1px, transparent 0)",
               backgroundSize: "28px 28px",
             }}
           />
@@ -288,9 +296,21 @@ const Login = () => {
               position: "relative",
               padding: isMobile ? "32px 22px 28px" : 0,
               borderRadius: isMobile ? 28 : 0,
-              background: isMobile ? "var(--panel-strong)" : "transparent",
-              boxShadow: isMobile ? "var(--shadow-strong)" : "none",
-              border: isMobile ? "1px solid var(--panel-border)" : "none",
+              background: isMobile
+                ? isDark
+                  ? "rgba(15,23,42,0.88)"
+                  : "rgba(255,255,255,0.96)"
+                : "transparent",
+              boxShadow: isMobile
+                ? isDark
+                  ? "0 24px 64px rgba(2,6,23,0.42)"
+                  : "var(--shadow-strong)"
+                : "none",
+              border: isMobile
+                ? isDark
+                  ? "1px solid rgba(51,65,85,0.9)"
+                  : "1px solid var(--panel-border)"
+                : "none",
               backdropFilter: isMobile ? "blur(16px)" : "none",
               display: "flex",
               flexDirection: "column",
@@ -318,7 +338,7 @@ const Login = () => {
                 style={{
                   fontSize: isMobile ? "2rem" : "2.2rem",
                   fontWeight: 800,
-                  color: "var(--shell-text)",
+                  color: isDark ? "#f8fafc" : "#0f172a",
                   letterSpacing: "-0.03em",
                   textAlign: isMobile ? "center" : "left",
                   margin: 0,
@@ -346,7 +366,7 @@ const Login = () => {
               <motion.p
                 style={{
                   fontSize: 15,
-                  color: "var(--muted-text)",
+                  color: isDark ? "#cbd5e1" : "#64748b",
                   marginBottom: 36,
                   lineHeight: 1.5,
                 }}
@@ -378,7 +398,7 @@ const Login = () => {
                   gap: 8,
                   fontSize: 14,
                   fontWeight: 600,
-                  color: "var(--secondary-text)",
+                  color: isDark ? "#e2e8f0" : "#1e293b",
                   marginBottom: 8,
                   letterSpacing: "0.01em",
                 }}
@@ -412,14 +432,8 @@ const Login = () => {
                     borderRadius: 14,
                     border:
                       focusedField === "email" ? "2px solid #3b82f6" : "2px solid var(--soft-border)",
-                    background: focusedField === "email"
-                      ? isDark
-                        ? "rgba(15,23,42,0.92)"
-                        : "#ffffff"
-                      : isDark
-                        ? "rgba(15,23,42,0.72)"
-                        : "var(--panel-muted)",
-                    color: "var(--shell-text)",
+                    background: focusedField === "email" ? "#ffffff" : "#f8fafc",
+                    color: "#0f172a",
                     fontSize: 15,
                     fontWeight: 500,
                     outline: "none",
@@ -445,7 +459,7 @@ const Login = () => {
                   gap: 8,
                   fontSize: 14,
                   fontWeight: 600,
-                  color: "var(--secondary-text)",
+                  color: isDark ? "#e2e8f0" : "#1e293b",
                   marginBottom: 8,
                   letterSpacing: "0.01em",
                 }}
@@ -481,14 +495,8 @@ const Login = () => {
                       focusedField === "password"
                         ? "2px solid #3b82f6"
                         : "2px solid var(--soft-border)",
-                    background: focusedField === "password"
-                      ? isDark
-                        ? "rgba(15,23,42,0.92)"
-                        : "#ffffff"
-                      : isDark
-                        ? "rgba(15,23,42,0.72)"
-                        : "var(--panel-muted)",
-                    color: "var(--shell-text)",
+                    background: focusedField === "password" ? "#ffffff" : "#f8fafc",
+                    color: "#0f172a",
                     fontSize: 15,
                     fontWeight: 500,
                     outline: "none",
@@ -521,7 +529,7 @@ const Login = () => {
                     cursor: "pointer",
                     padding: 0,
                     margin: 0,
-                    color: "var(--muted-text)",
+                    color: "#64748b",
                   }}
                 >
                   {showPassword ? (
@@ -676,8 +684,7 @@ const Login = () => {
             style={{
               textAlign: "center",
               fontSize: 12,
-              color: "#94a3b8",
-              color: "var(--muted-text)",
+              color: isDark ? "#94a3b8" : "#94a3b8",
               marginTop: isMobile ? 24 : 40,
               fontWeight: 500,
               letterSpacing: "0.02em",
