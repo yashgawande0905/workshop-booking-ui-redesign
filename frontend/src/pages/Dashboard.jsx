@@ -395,10 +395,10 @@ const Dashboard = () => {
                   style={{
                     height: 48,
                     borderRadius: 14,
-                    border: "none",
-                    background: "linear-gradient(135deg, #2563eb, #60a5fa)",
-                    color: "#fff",
-                    fontWeight: 800,
+                    border: "1px solid rgba(37,99,235,0.24)",
+                    background: "rgba(219,234,254,0.88)",
+                    color: "#1d4ed8",
+                    fontWeight: 700,
                     cursor: "pointer",
                   }}
                 >
@@ -454,7 +454,7 @@ const Dashboard = () => {
                         border: "1px solid rgba(220,38,38,0.22)",
                         background: account.id === user?.id ? "rgba(148,163,184,0.22)" : "rgba(254,242,242,0.9)",
                         color: account.id === user?.id ? "#94a3b8" : "#dc2626",
-                        fontWeight: 800,
+                        fontWeight: 700,
                         cursor: account.id === user?.id ? "not-allowed" : "pointer",
                         display: "flex",
                         alignItems: "center",

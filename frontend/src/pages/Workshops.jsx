@@ -33,6 +33,60 @@ const formatDate = (dateValue) =>
     year: "numeric",
   });
 
+const getActionButtonStyle = ({ tone = "neutral", emphasis = "secondary" } = {}) => {
+  const tones = {
+    neutral: {
+      color: "#334155",
+      border: "rgba(148,163,184,0.26)",
+      background: "#ffffff",
+      accentBg: "rgba(241,245,249,0.92)",
+    },
+    primary: {
+      color: "#1d4ed8",
+      border: "rgba(37,99,235,0.24)",
+      background: "#ffffff",
+      accentBg: "rgba(219,234,254,0.86)",
+    },
+    success: {
+      color: "#0f766e",
+      border: "rgba(15,118,110,0.22)",
+      background: "#ffffff",
+      accentBg: "rgba(204,251,241,0.9)",
+    },
+    warning: {
+      color: "#7c3aed",
+      border: "rgba(124,58,237,0.2)",
+      background: "#ffffff",
+      accentBg: "rgba(237,233,254,0.9)",
+    },
+    danger: {
+      color: "#b91c1c",
+      border: "rgba(220,38,38,0.2)",
+      background: "#ffffff",
+      accentBg: "rgba(254,226,226,0.92)",
+    },
+  };
+
+  const current = tones[tone] || tones.neutral;
+
+  return {
+    height: 42,
+    padding: emphasis === "secondary" ? "0 14px" : "0 16px",
+    borderRadius: 12,
+    border: `1px solid ${current.border}`,
+    background: emphasis === "ghost" ? "transparent" : current.accentBg,
+    color: current.color,
+    fontWeight: 700,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    boxShadow: "none",
+    transition: "background 0.2s ease, border-color 0.2s ease, color 0.2s ease",
+  };
+};
+
 const Workshops = () => {
   const { portalData, loading, error } = usePortalData();
   const { user } = useAuth();
@@ -330,10 +384,10 @@ const Workshops = () => {
               style={{
                 height: 48,
                 borderRadius: 14,
-                border: "none",
-                background: "linear-gradient(135deg, #2563eb, #60a5fa)",
-                color: "#fff",
-                fontWeight: 800,
+                border: "1px solid rgba(37,99,235,0.24)",
+                background: "rgba(219,234,254,0.88)",
+                color: "#1d4ed8",
+                fontWeight: 700,
                 cursor: "pointer",
                 gridColumn: "1 / -1",
               }}
@@ -348,9 +402,9 @@ const Workshops = () => {
                   height: 48,
                   borderRadius: 14,
                   border: "1px solid var(--panel-border)",
-                  background: "var(--panel-strong)",
+                  background: "rgba(248,250,252,0.92)",
                   color: "var(--shell-text)",
-                  fontWeight: 800,
+                  fontWeight: 700,
                   cursor: "pointer",
                   gridColumn: "1 / -1",
                 }}
@@ -494,17 +548,7 @@ const Workshops = () => {
                       onClick={() => startEditingWorkshop(workshop)}
                       style={{
                         flex: 1,
-                        height: 42,
-                        borderRadius: 12,
-                        border: "1px solid rgba(37,99,235,0.24)",
-                        background: "var(--panel-strong)",
-                        color: "var(--accent)",
-                        fontWeight: 800,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 8,
+                        ...getActionButtonStyle({ tone: "primary" }),
                       }}
                     >
                       <Pencil size={15} />
@@ -515,17 +559,7 @@ const Workshops = () => {
                       onClick={() => setWorkshopPendingDelete(workshop)}
                       style={{
                         flex: 1,
-                        height: 42,
-                        borderRadius: 12,
-                        border: "1px solid rgba(220,38,38,0.22)",
-                        background: "rgba(254,242,242,0.9)",
-                        color: "#dc2626",
-                        fontWeight: 800,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 8,
+                        ...getActionButtonStyle({ tone: "danger" }),
                       }}
                     >
                       <Trash2 size={15} />
@@ -544,17 +578,7 @@ const Workshops = () => {
                       style={{
                         flex: 1,
                         minWidth: 120,
-                        height: 42,
-                        borderRadius: 12,
-                        border: "none",
-                        background: "linear-gradient(135deg, #059669, #10b981)",
-                        color: "#fff",
-                        fontWeight: 800,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 8,
+                        ...getActionButtonStyle({ tone: "success" }),
                       }}
                     >
                       <CheckCircle2 size={15} />
@@ -568,17 +592,7 @@ const Workshops = () => {
                       style={{
                         flex: 1,
                         minWidth: 120,
-                        height: 42,
-                        borderRadius: 12,
-                        border: "none",
-                        background: "linear-gradient(135deg, #7c3aed, #8b5cf6)",
-                        color: "#fff",
-                        fontWeight: 800,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 8,
+                        ...getActionButtonStyle({ tone: "warning" }),
                       }}
                     >
                       <ShieldCheck size={15} />
@@ -592,17 +606,7 @@ const Workshops = () => {
                       style={{
                         flex: 1,
                         minWidth: 120,
-                        height: 42,
-                        borderRadius: 12,
-                        border: "none",
-                        background: "linear-gradient(135deg, #dc2626, #ef4444)",
-                        color: "#fff",
-                        fontWeight: 800,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 8,
+                        ...getActionButtonStyle({ tone: "danger" }),
                       }}
                     >
                       <XCircle size={15} />

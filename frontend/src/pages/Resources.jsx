@@ -7,6 +7,30 @@ import { useTheme } from "../context/ThemeContext";
 import usePortalData from "../hooks/usePortalData";
 import { deleteWorkshopType, saveWorkshopType, updateWorkshopType } from "../utils/portalStorage";
 
+const getActionButtonStyle = ({ tone = "neutral" } = {}) => {
+  const tones = {
+    neutral: { color: "#334155", border: "rgba(148,163,184,0.26)", background: "rgba(248,250,252,0.92)" },
+    primary: { color: "#1d4ed8", border: "rgba(37,99,235,0.24)", background: "rgba(219,234,254,0.88)" },
+    danger: { color: "#b91c1c", border: "rgba(220,38,38,0.2)", background: "rgba(254,226,226,0.92)" },
+  };
+  const current = tones[tone] || tones.neutral;
+
+  return {
+    height: 42,
+    padding: "0 14px",
+    borderRadius: 12,
+    border: `1px solid ${current.border}`,
+    background: current.background,
+    color: current.color,
+    fontWeight: 700,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  };
+};
+
 const Resources = () => {
   const { portalData, loading, error } = usePortalData();
   const { user } = useAuth();
@@ -211,10 +235,10 @@ const Resources = () => {
               style={{
                 height: 48,
                 borderRadius: 14,
-                border: "none",
-                background: "linear-gradient(135deg, #2563eb, #60a5fa)",
-                color: "#fff",
-                fontWeight: 800,
+                border: "1px solid rgba(37,99,235,0.24)",
+                background: "rgba(219,234,254,0.88)",
+                color: "#1d4ed8",
+                fontWeight: 700,
                 cursor: "pointer",
                 gridColumn: "1 / -1",
               }}
@@ -229,9 +253,9 @@ const Resources = () => {
                   height: 48,
                   borderRadius: 14,
                   border: "1px solid var(--panel-border)",
-                  background: "var(--panel-strong)",
+                  background: "rgba(248,250,252,0.92)",
                   color: "var(--shell-text)",
-                  fontWeight: 800,
+                  fontWeight: 700,
                   cursor: "pointer",
                   gridColumn: "1 / -1",
                 }}
@@ -354,17 +378,7 @@ const Resources = () => {
                     onClick={() => startEditingType(item)}
                     style={{
                       flex: 1,
-                      height: 42,
-                      borderRadius: 12,
-                      border: "1px solid rgba(37,99,235,0.24)",
-                      background: "var(--panel-strong)",
-                      color: "var(--accent)",
-                      fontWeight: 800,
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 8,
+                      ...getActionButtonStyle({ tone: "primary" }),
                     }}
                   >
                     <Pencil size={15} />
@@ -375,17 +389,7 @@ const Resources = () => {
                     onClick={() => setTypePendingDelete(item)}
                     style={{
                       flex: 1,
-                      height: 42,
-                      borderRadius: 12,
-                      border: "1px solid rgba(220,38,38,0.22)",
-                      background: "rgba(254,242,242,0.9)",
-                      color: "#dc2626",
-                      fontWeight: 800,
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 8,
+                      ...getActionButtonStyle({ tone: "danger" }),
                     }}
                   >
                     <Trash2 size={15} />
