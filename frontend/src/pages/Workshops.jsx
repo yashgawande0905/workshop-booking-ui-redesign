@@ -1,7 +1,23 @@
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { CalendarClock, CircleCheckBig, Hourglass, UserRound } from "lucide-react";
+import {
+  CalendarClock,
+  CheckCircle2,
+  CircleCheckBig,
+  Hourglass,
+  MapPin,
+  Pencil,
+  PlusCircle,
+  ShieldCheck,
+  Trash2,
+  UserRound,
+  XCircle,
+} from "lucide-react";
+import ActionToast from "../components/ActionToast";
+import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import usePortalData from "../hooks/usePortalData";
+import { deleteWorkshop, saveWorkshop, setWorkshopStatusOverride, updateWorkshop } from "../utils/portalStorage";
 
 const statusStyles = {
   Accepted: { color: "#0f766e", background: "rgba(15,118,110,0.12)" },
@@ -19,7 +35,144 @@ const formatDate = (dateValue) =>
 
 const Workshops = () => {
   const { portalData, loading, error } = usePortalData();
+  const { user } = useAuth();
   const { isDark } = useTheme();
+  const [toast, setToast] = useState({ message: "", tone: "success" });
+  const [editingWorkshopId, setEditingWorkshopId] = useState(null);
+  const [workshopPendingDelete, setWorkshopPendingDelete] = useState(null);
+  const [workshopForm, setWorkshopForm] = useState({
+    title: "",
+    type_name: "",
+    customType: "",
+    date: "",
+    duration: "",
+    instructor: "",
+    mode: "Online",
+    target_audience: "",
+    state_name: "",
+    institute_name: "",
+    notes: "",
+  });
+
+  const workshopTypeNames = useMemo(
+    () => [...new Set((portalData.workshop_types ?? []).map((item) => item.name))],
+    [portalData.workshop_types]
+  );
+  const canManageWorkshops = user?.role === "Coordinator" || user?.role === "Admin";
+  const isAdmin = user?.role === "Admin";
+
+  const inputStyle = {
+    width: "100%",
+    height: 48,
+    padding: "0 14px",
+    borderRadius: 14,
+    border: "1px solid var(--panel-border)",
+    background: isDark ? "rgba(15,23,42,0.72)" : "#ffffff",
+    color: "var(--shell-text)",
+    outline: "none",
+    boxSizing: "border-box",
+  };
+
+  const handleWorkshopSubmit = (e) => {
+    e.preventDefault();
+    const finalType = workshopForm.type_name === "Other" ? workshopForm.customType.trim() : workshopForm.type_name;
+
+    const payload = {
+      title: workshopForm.title,
+      type_name: finalType,
+      date: workshopForm.date,
+      duration: Number(workshopForm.duration),
+      instructor: workshopForm.instructor,
+      coordinator: user?.name || "Coordinator",
+      mode: workshopForm.mode,
+      target_audience: workshopForm.target_audience,
+      state_name: workshopForm.state_name,
+      institute_name: workshopForm.institute_name,
+      notes: workshopForm.notes,
+      status: "Pending",
+    };
+
+    if (editingWorkshopId) {
+      updateWorkshop(editingWorkshopId, payload);
+    } else {
+      saveWorkshop(payload);
+    }
+
+    setWorkshopForm({
+      title: "",
+      type_name: "",
+      customType: "",
+      date: "",
+      duration: "",
+      instructor: "",
+      mode: "Online",
+      target_audience: "",
+      state_name: "",
+      institute_name: "",
+      notes: "",
+    });
+    setEditingWorkshopId(null);
+    setToast({
+      message: editingWorkshopId
+        ? "Workshop draft updated."
+        : "Workshop draft added for the coordinator and shown in the list with pending status.",
+      tone: editingWorkshopId ? "info" : "success",
+    });
+  };
+
+  const startEditingWorkshop = (workshop) => {
+    const knownType = workshopTypeNames.includes(workshop.type_name);
+    setEditingWorkshopId(workshop.id);
+    setWorkshopForm({
+      title: workshop.title || "",
+      type_name: knownType ? workshop.type_name : "Other",
+      customType: knownType ? "" : workshop.type_name || "",
+      date: workshop.date || "",
+      duration: String(workshop.duration || ""),
+      instructor: workshop.instructor || "",
+      mode: workshop.mode || "Online",
+      target_audience: workshop.target_audience || "",
+      state_name: workshop.state_name || "",
+      institute_name: workshop.institute_name || "",
+      notes: workshop.notes || "",
+    });
+    setToast({ message: `Editing "${workshop.title}"`, tone: "info" });
+  };
+
+  const resetWorkshopForm = () => {
+    setEditingWorkshopId(null);
+    setWorkshopForm({
+      title: "",
+      type_name: "",
+      customType: "",
+      date: "",
+      duration: "",
+      instructor: "",
+      mode: "Online",
+      target_audience: "",
+      state_name: "",
+      institute_name: "",
+      notes: "",
+    });
+  };
+
+  const confirmDeleteWorkshop = () => {
+    if (!workshopPendingDelete) {
+      return;
+    }
+
+    deleteWorkshop(workshopPendingDelete.id);
+    if (editingWorkshopId === workshopPendingDelete.id) {
+      resetWorkshopForm();
+    }
+    setToast({ message: `Workshop "${workshopPendingDelete.title}" deleted.`, tone: "danger" });
+    setWorkshopPendingDelete(null);
+  };
+
+  const handleAdminStatusChange = (workshop, status, message, tone) => {
+    setWorkshopStatusOverride(workshop.id, status);
+    setToast({ message, tone });
+  };
 
   return (
     <div style={{ maxWidth: 1180, margin: "0 auto" }}>
@@ -45,9 +198,172 @@ const Workshops = () => {
         </p>
       </motion.section>
 
-      {error && (
-        <div style={{ marginTop: 18, color: "#be123c", fontWeight: 700 }}>{error}</div>
-      )}
+      {canManageWorkshops ? (
+        <motion.section
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
+          style={{
+            marginTop: 20,
+            padding: 24,
+            borderRadius: 28,
+            background: "var(--panel-bg)",
+            border: "1px solid var(--panel-border)",
+            boxShadow: "var(--shadow-soft)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+            <PlusCircle size={20} color="#2563eb" />
+            <h3 style={{ margin: 0, color: "var(--shell-text)", fontSize: "1.35rem" }}>Coordinator Workshop Setup</h3>
+          </div>
+          <p style={{ margin: "0 0 18px", color: "var(--muted-text)", lineHeight: 1.65 }}>
+            Add a workshop with type, instructor, mode, target audience, location, institute, and planning notes. New coordinator entries start as pending.
+          </p>
+
+          <form
+            onSubmit={handleWorkshopSubmit}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: 14,
+            }}
+          >
+            <input
+              value={workshopForm.title}
+              onChange={(e) => setWorkshopForm((current) => ({ ...current, title: e.target.value }))}
+              placeholder="Workshop title"
+              required
+              style={inputStyle}
+            />
+            <select
+              value={workshopForm.type_name}
+              onChange={(e) => setWorkshopForm((current) => ({ ...current, type_name: e.target.value }))}
+              required
+              style={inputStyle}
+            >
+              <option value="">Select workshop type</option>
+              {workshopTypeNames.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+              <option value="Other">Other</option>
+            </select>
+            <input
+              type="date"
+              value={workshopForm.date}
+              onChange={(e) => setWorkshopForm((current) => ({ ...current, date: e.target.value }))}
+              required
+              style={inputStyle}
+            />
+            <input
+              type="number"
+              min="1"
+              value={workshopForm.duration}
+              onChange={(e) => setWorkshopForm((current) => ({ ...current, duration: e.target.value }))}
+              placeholder="Duration in days"
+              required
+              style={inputStyle}
+            />
+            {workshopForm.type_name === "Other" ? (
+              <input
+                value={workshopForm.customType}
+                onChange={(e) => setWorkshopForm((current) => ({ ...current, customType: e.target.value }))}
+                placeholder="Enter custom workshop type"
+                required
+                style={inputStyle}
+              />
+            ) : null}
+            <input
+              value={workshopForm.instructor}
+              onChange={(e) => setWorkshopForm((current) => ({ ...current, instructor: e.target.value }))}
+              placeholder="Instructor name"
+              required
+              style={inputStyle}
+            />
+            <select
+              value={workshopForm.mode}
+              onChange={(e) => setWorkshopForm((current) => ({ ...current, mode: e.target.value }))}
+              style={inputStyle}
+            >
+              {["Online", "Offline", "Hybrid"].map((mode) => (
+                <option key={mode} value={mode}>
+                  {mode}
+                </option>
+              ))}
+            </select>
+            <input
+              value={workshopForm.target_audience}
+              onChange={(e) => setWorkshopForm((current) => ({ ...current, target_audience: e.target.value }))}
+              placeholder="Target audience"
+              required
+              style={inputStyle}
+            />
+            <input
+              value={workshopForm.state_name}
+              onChange={(e) => setWorkshopForm((current) => ({ ...current, state_name: e.target.value }))}
+              placeholder="State / Region"
+              required
+              style={inputStyle}
+            />
+            <input
+              value={workshopForm.institute_name}
+              onChange={(e) => setWorkshopForm((current) => ({ ...current, institute_name: e.target.value }))}
+              placeholder="Institute / Organization"
+              required
+              style={inputStyle}
+            />
+            <textarea
+              value={workshopForm.notes}
+              onChange={(e) => setWorkshopForm((current) => ({ ...current, notes: e.target.value }))}
+              placeholder="Planning notes, requirements, resources, lab setup, or follow-up details"
+              style={{
+                ...inputStyle,
+                minHeight: 110,
+                padding: 14,
+                resize: "vertical",
+                gridColumn: "1 / -1",
+              }}
+            />
+            <button
+              type="submit"
+              style={{
+                height: 48,
+                borderRadius: 14,
+                border: "none",
+                background: "linear-gradient(135deg, #2563eb, #60a5fa)",
+                color: "#fff",
+                fontWeight: 800,
+                cursor: "pointer",
+                gridColumn: "1 / -1",
+              }}
+            >
+              {editingWorkshopId ? "Update Workshop" : "Add Workshop"}
+            </button>
+            {editingWorkshopId ? (
+              <button
+                type="button"
+                onClick={resetWorkshopForm}
+                style={{
+                  height: 48,
+                  borderRadius: 14,
+                  border: "1px solid var(--panel-border)",
+                  background: "var(--panel-strong)",
+                  color: "var(--shell-text)",
+                  fontWeight: 800,
+                  cursor: "pointer",
+                  gridColumn: "1 / -1",
+                }}
+              >
+                Cancel Editing
+              </button>
+            ) : null}
+          </form>
+
+        </motion.section>
+      ) : null}
+
+      {error && <div style={{ marginTop: 18, color: "#be123c", fontWeight: 700 }}>{error}</div>}
 
       <div style={{ display: "grid", gap: 16, marginTop: 20 }}>
         {loading ? (
@@ -82,7 +398,7 @@ const Workshops = () => {
                   <div>
                     <h3 style={{ margin: 0, fontSize: "1.2rem", color: "var(--shell-text)" }}>{workshop.title}</h3>
                     <p style={{ margin: "8px 0 0", color: "var(--muted-text)", lineHeight: 1.6 }}>
-                      Scheduled for {formatDate(workshop.date)} • {workshop.duration} day(s)
+                      Scheduled for {formatDate(workshop.date)} · {workshop.duration} day(s)
                     </p>
                   </div>
 
@@ -112,7 +428,8 @@ const Workshops = () => {
                     { icon: UserRound, label: "Coordinator", value: workshop.coordinator },
                     { icon: CircleCheckBig, label: "Instructor", value: workshop.instructor },
                     { icon: CalendarClock, label: "Delivery", value: formatDate(workshop.date) },
-                    { icon: Hourglass, label: "Duration", value: `${workshop.duration} day(s)` },
+                    { icon: Hourglass, label: "Type", value: workshop.type_name || "General" },
+                    { icon: MapPin, label: "Location", value: workshop.state_name || workshop.mode || "Not specified" },
                   ].map(({ icon: Icon, label, value }) => (
                     <div
                       key={label}
@@ -139,11 +456,237 @@ const Workshops = () => {
                     </div>
                   ))}
                 </div>
+
+                {(workshop.target_audience || workshop.institute_name || workshop.notes) ? (
+                  <div
+                    style={{
+                      marginTop: 14,
+                      padding: 16,
+                      borderRadius: 18,
+                      background: isDark ? "rgba(15,23,42,0.68)" : "rgba(248,250,252,0.92)",
+                      border: "1px solid var(--panel-border)",
+                      display: "grid",
+                      gap: 8,
+                    }}
+                  >
+                    {workshop.target_audience ? (
+                      <div style={{ color: "var(--muted-text)", lineHeight: 1.6 }}>
+                        <strong style={{ color: "var(--shell-text)" }}>Audience:</strong> {workshop.target_audience}
+                      </div>
+                    ) : null}
+                    {workshop.institute_name ? (
+                      <div style={{ color: "var(--muted-text)", lineHeight: 1.6 }}>
+                        <strong style={{ color: "var(--shell-text)" }}>Institute:</strong> {workshop.institute_name}
+                      </div>
+                    ) : null}
+                    {workshop.notes ? (
+                      <div style={{ color: "var(--muted-text)", lineHeight: 1.6 }}>
+                        <strong style={{ color: "var(--shell-text)" }}>Notes:</strong> {workshop.notes}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                    {canManageWorkshops && workshop.id?.startsWith("custom-workshop-") ? (
+                      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 14 }}>
+                    <button
+                      type="button"
+                      onClick={() => startEditingWorkshop(workshop)}
+                      style={{
+                        flex: 1,
+                        height: 42,
+                        borderRadius: 12,
+                        border: "1px solid rgba(37,99,235,0.24)",
+                        background: "var(--panel-strong)",
+                        color: "var(--accent)",
+                        fontWeight: 800,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                      }}
+                    >
+                      <Pencil size={15} />
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setWorkshopPendingDelete(workshop)}
+                      style={{
+                        flex: 1,
+                        height: 42,
+                        borderRadius: 12,
+                        border: "1px solid rgba(220,38,38,0.22)",
+                        background: "rgba(254,242,242,0.9)",
+                        color: "#dc2626",
+                        fontWeight: 800,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                      }}
+                    >
+                      <Trash2 size={15} />
+                      Delete
+                    </button>
+                  </div>
+                    ) : null}
+
+                {isAdmin ? (
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 14 }}>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleAdminStatusChange(workshop, "Accepted", `Workshop "${workshop.title}" accepted.`, "success")
+                      }
+                      style={{
+                        flex: 1,
+                        minWidth: 120,
+                        height: 42,
+                        borderRadius: 12,
+                        border: "none",
+                        background: "linear-gradient(135deg, #059669, #10b981)",
+                        color: "#fff",
+                        fontWeight: 800,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                      }}
+                    >
+                      <CheckCircle2 size={15} />
+                      Accept
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleAdminStatusChange(workshop, "Pending", `Workshop "${workshop.title}" kept pending.`, "info")
+                      }
+                      style={{
+                        flex: 1,
+                        minWidth: 120,
+                        height: 42,
+                        borderRadius: 12,
+                        border: "none",
+                        background: "linear-gradient(135deg, #7c3aed, #8b5cf6)",
+                        color: "#fff",
+                        fontWeight: 800,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                      }}
+                    >
+                      <ShieldCheck size={15} />
+                      Keep Pending
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleAdminStatusChange(workshop, "Deleted", `Workshop "${workshop.title}" rejected.`, "danger")
+                      }
+                      style={{
+                        flex: 1,
+                        minWidth: 120,
+                        height: 42,
+                        borderRadius: 12,
+                        border: "none",
+                        background: "linear-gradient(135deg, #dc2626, #ef4444)",
+                        color: "#fff",
+                        fontWeight: 800,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 8,
+                      }}
+                    >
+                      <XCircle size={15} />
+                      Reject
+                    </button>
+                  </div>
+                ) : null}
               </motion.div>
             );
           })
         )}
       </div>
+
+      {workshopPendingDelete ? (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(15,23,42,0.45)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 16,
+            zIndex: 60,
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: 440,
+              padding: 24,
+              borderRadius: 24,
+              background: "var(--panel-strong)",
+              border: "1px solid var(--panel-border)",
+              boxShadow: "var(--shadow-strong)",
+            }}
+          >
+            <h3 style={{ margin: 0, color: "var(--shell-text)" }}>Delete workshop?</h3>
+            <p style={{ margin: "12px 0 0", color: "var(--muted-text)", lineHeight: 1.65 }}>
+              This will remove <strong style={{ color: "var(--shell-text)" }}>{workshopPendingDelete.title}</strong>
+              {" "}from the coordinator-created workshop list.
+            </p>
+            <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
+              <button
+                type="button"
+                onClick={() => setWorkshopPendingDelete(null)}
+                style={{
+                  flex: 1,
+                  height: 44,
+                  borderRadius: 14,
+                  border: "1px solid var(--panel-border)",
+                  background: "var(--panel-bg)",
+                  color: "var(--shell-text)",
+                  fontWeight: 800,
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteWorkshop}
+                style={{
+                  flex: 1,
+                  height: 44,
+                  borderRadius: 14,
+                  border: "none",
+                  background: "#dc2626",
+                  color: "#fff",
+                  fontWeight: 800,
+                  cursor: "pointer",
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      <ActionToast
+        message={toast.message}
+        tone={toast.tone}
+        onClose={() => setToast({ message: "", tone: "success" })}
+      />
     </div>
   );
 };

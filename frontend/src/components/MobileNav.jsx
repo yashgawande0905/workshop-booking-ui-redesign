@@ -1,5 +1,6 @@
 import { BarChart3, BookOpenText, Home, Layers3, UserRound } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 
 const items = [
@@ -12,7 +13,9 @@ const items = [
 
 const MobileNav = () => {
   const location = useLocation();
+  const { user } = useAuth();
   const { isDark } = useTheme();
+  const visibleItems = items.filter((item) => !(item.to === "/insights" && user?.role === "Student"));
 
   return (
     <nav
@@ -37,12 +40,12 @@ const MobileNav = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(5, 1fr)",
+          gridTemplateColumns: `repeat(${visibleItems.length}, 1fr)`,
           gap: 6,
           alignItems: "stretch",
         }}
       >
-        {items.map(({ to, label, icon: Icon }) => {
+        {visibleItems.map(({ to, label, icon: Icon }) => {
           const active = location.pathname === to;
 
           return (

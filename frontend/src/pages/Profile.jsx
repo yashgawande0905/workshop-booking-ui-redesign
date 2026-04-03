@@ -1,24 +1,34 @@
 import { motion } from "framer-motion";
-import { Building2, Mail, ShieldCheck, UserRound } from "lucide-react";
+import { Building2, BriefcaseBusiness, Mail, Phone, ShieldCheck, UserRound } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-
-const infoCards = [
-  {
-    label: "Account Role",
-    value: "Student / Coordinator",
-    icon: ShieldCheck,
-  },
-  {
-    label: "Institute",
-    value: "IIT Bombay / FOSSEE Portal",
-    icon: Building2,
-  },
-];
 
 const Profile = () => {
   const { user } = useAuth();
   const { isDark } = useTheme();
+
+  const infoCards = [
+    {
+      label: "Account Role",
+      value: user?.role || "Student",
+      icon: ShieldCheck,
+    },
+    {
+      label: "Profession",
+      value: user?.profession || "Student",
+      icon: BriefcaseBusiness,
+    },
+    {
+      label: "Institute",
+      value: user?.institute || "Not provided",
+      icon: Building2,
+    },
+    {
+      label: "Department",
+      value: user?.department || "Not provided",
+      icon: UserRound,
+    },
+  ];
 
   return (
     <div style={{ maxWidth: 1080, margin: "0 auto" }}>
@@ -39,39 +49,67 @@ const Profile = () => {
             alignItems: "center",
             gap: 18,
             flexWrap: "wrap",
+            justifyContent: "space-between",
           }}
         >
           <div
             style={{
-              width: 82,
-              height: 82,
-              borderRadius: 28,
-              background: isDark
-                ? "linear-gradient(135deg, #1d4ed8, #3b82f6)"
-                : "linear-gradient(135deg, #2563eb, #60a5fa)",
-              color: "#fff",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              boxShadow: isDark
-                ? "0 18px 36px rgba(37,99,235,0.18)"
-                : "0 18px 36px rgba(37,99,235,0.24)",
+              gap: 18,
+              flexWrap: "wrap",
             }}
           >
-            <UserRound size={34} />
+            <div
+              style={{
+                width: 82,
+                height: 82,
+                borderRadius: 28,
+                background: isDark
+                  ? "linear-gradient(135deg, #1d4ed8, #3b82f6)"
+                  : "linear-gradient(135deg, #2563eb, #60a5fa)",
+                color: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: isDark
+                  ? "0 18px 36px rgba(37,99,235,0.18)"
+                  : "0 18px 36px rgba(37,99,235,0.24)",
+              }}
+            >
+              <UserRound size={34} />
+            </div>
+
+            <div>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: "var(--accent)", letterSpacing: "0.06em" }}>
+                PROFILE
+              </p>
+              <h1 style={{ margin: "10px 0 8px", fontSize: "clamp(2rem, 4vw, 2.8rem)", color: "var(--shell-text)" }}>
+                {user?.name || "Student"}
+              </h1>
+              <div style={{ display: "grid", gap: 8, color: "var(--muted-text)", fontWeight: 600 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Mail size={16} />
+                  {user?.email || "Not available"}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Phone size={16} />
+                  {user?.phone || "Not available"}
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: "var(--accent)", letterSpacing: "0.06em" }}>
-              PROFILE
-            </p>
-            <h1 style={{ margin: "10px 0 8px", fontSize: "clamp(2rem, 4vw, 2.8rem)", color: "var(--shell-text)" }}>
-              {user?.name || "Student"}
-            </h1>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--muted-text)", fontWeight: 600 }}>
-              <Mail size={16} />
-              {user?.email || "Not available"}
-            </div>
+          <div
+            style={{
+              padding: "12px 14px",
+              borderRadius: 18,
+              background: "var(--accent-soft)",
+              color: "var(--accent)",
+              fontWeight: 800,
+            }}
+          >
+            {user?.role || "Student"} account
           </div>
         </div>
       </motion.section>
