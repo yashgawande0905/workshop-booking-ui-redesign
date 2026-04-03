@@ -1,6 +1,7 @@
 import { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -39,58 +40,60 @@ const ProtectedPage = ({ children }) => (
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/" element={<Login />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/register" element={<Register />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedPage>
-                  <Dashboard />
-                </ProtectedPage>
-              }
-            />
-            <Route
-              path="/workshops"
-              element={
-                <ProtectedPage>
-                  <Workshops />
-                </ProtectedPage>
-              }
-            />
-            <Route
-              path="/resources"
-              element={
-                <ProtectedPage>
-                  <Resources />
-                </ProtectedPage>
-              }
-            />
-            <Route
-              path="/insights"
-              element={
-                <ProtectedPage>
-                  <Insights />
-                </ProtectedPage>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedPage>
-                  <Profile />
-                </ProtectedPage>
-              }
-            />
-          </Routes>
-        </Suspense>
-      </Router>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Login />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/register" element={<Register />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedPage>
+                    <Dashboard />
+                  </ProtectedPage>
+                }
+              />
+              <Route
+                path="/workshops"
+                element={
+                  <ProtectedPage>
+                    <Workshops />
+                  </ProtectedPage>
+                }
+              />
+              <Route
+                path="/resources"
+                element={
+                  <ProtectedPage>
+                    <Resources />
+                  </ProtectedPage>
+                }
+              />
+              <Route
+                path="/insights"
+                element={
+                  <ProtectedPage>
+                    <Insights />
+                  </ProtectedPage>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedPage>
+                    <Profile />
+                  </ProtectedPage>
+                }
+              />
+            </Routes>
+          </Suspense>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight, BookOpenText, Files, Layers3 } from "lucide-react";
+import { useTheme } from "../context/ThemeContext";
 import usePortalData from "../hooks/usePortalData";
 
 const Resources = () => {
   const { portalData, loading, error } = usePortalData();
+  const { isDark } = useTheme();
 
   return (
     <div style={{ maxWidth: 1180, margin: "0 auto" }}>
@@ -13,19 +15,18 @@ const Resources = () => {
         style={{
           padding: "28px 24px",
           borderRadius: 30,
-          background:
-            "linear-gradient(135deg, rgba(255,255,255,0.98), rgba(239,246,255,0.98), rgba(248,250,252,0.98))",
-          border: "1px solid rgba(148,163,184,0.16)",
-          boxShadow: "0 22px 60px rgba(15,23,42,0.06)",
+          background: "var(--panel-strong)",
+          border: "1px solid var(--panel-border)",
+          boxShadow: "var(--shadow-strong)",
         }}
       >
-        <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: "#2563eb", letterSpacing: "0.06em" }}>
+        <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: "var(--accent)", letterSpacing: "0.06em" }}>
           WORKSHOP TYPES
         </p>
-        <h1 style={{ margin: "10px 0 12px", fontSize: "clamp(2rem, 4vw, 2.8rem)", color: "#0f172a" }}>
+        <h1 style={{ margin: "10px 0 12px", fontSize: "clamp(2rem, 4vw, 2.8rem)", color: "var(--shell-text)" }}>
           Workshop types
         </h1>
-        <p style={{ margin: 0, color: "#64748b", lineHeight: 1.7, maxWidth: 720 }}>
+        <p style={{ margin: 0, color: "var(--muted-text)", lineHeight: 1.7, maxWidth: 720 }}>
           Browse the workshop types available in the system along with their duration and attached resources.
         </p>
       </motion.section>
@@ -43,7 +44,7 @@ const Resources = () => {
         }}
       >
         {loading ? (
-          <div style={{ color: "#64748b", fontWeight: 600 }}>Loading resources...</div>
+          <div style={{ color: "var(--muted-text)", fontWeight: 600 }}>Loading resources...</div>
         ) : (
           portalData.workshop_types.map((item, index) => (
             <motion.article
@@ -54,9 +55,9 @@ const Resources = () => {
               style={{
                 padding: 22,
                 borderRadius: 24,
-                background: "rgba(255,255,255,0.94)",
-                border: "1px solid rgba(148,163,184,0.16)",
-                boxShadow: "0 18px 45px rgba(15,23,42,0.05)",
+                background: "var(--panel-bg)",
+                border: "1px solid var(--panel-border)",
+                boxShadow: "var(--shadow-soft)",
                 display: "flex",
                 flexDirection: "column",
                 gap: 16,
@@ -67,57 +68,47 @@ const Resources = () => {
                   width: 52,
                   height: 52,
                   borderRadius: 18,
-                  background: "rgba(37,99,235,0.12)",
-                  color: "#2563eb",
+                  background: "var(--accent-soft)",
+                  color: "var(--accent)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  border: isDark ? "1px solid rgba(96,165,250,0.2)" : "1px solid rgba(147,197,253,0.5)",
                 }}
               >
                 <BookOpenText size={22} />
               </div>
 
               <div>
-                <h3 style={{ margin: 0, fontSize: "1.18rem", color: "#0f172a" }}>{item.name}</h3>
-                <p style={{ margin: "10px 0 0", color: "#64748b", lineHeight: 1.65 }}>{item.description}</p>
+                <h3 style={{ margin: 0, fontSize: "1.18rem", color: "var(--shell-text)" }}>{item.name}</h3>
+                <p style={{ margin: "10px 0 0", color: "var(--muted-text)", lineHeight: 1.65 }}>{item.description}</p>
               </div>
 
               <div style={{ display: "grid", gap: 10 }}>
-                <div
-                  style={{
-                    padding: "12px 14px",
-                    borderRadius: 16,
-                    background: "#f8fbff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 12,
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#64748b", fontWeight: 700 }}>
-                    <Layers3 size={16} />
-                    Duration
+                {[
+                  { icon: Layers3, label: "Duration", value: `${item.duration} day(s)` },
+                  { icon: Files, label: "Resource Count", value: item.resource_count ?? 0 },
+                ].map(({ icon: Icon, label, value }) => (
+                  <div
+                    key={label}
+                    style={{
+                      padding: "12px 14px",
+                      borderRadius: 16,
+                      background: isDark ? "rgba(15,23,42,0.72)" : "var(--panel-muted)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 12,
+                      border: "1px solid var(--panel-border)",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--muted-text)", fontWeight: 700 }}>
+                      <Icon size={16} />
+                      {label}
+                    </div>
+                    <strong style={{ color: "var(--shell-text)" }}>{value}</strong>
                   </div>
-                  <strong style={{ color: "#0f172a" }}>{item.duration} day(s)</strong>
-                </div>
-
-                <div
-                  style={{
-                    padding: "12px 14px",
-                    borderRadius: 16,
-                    background: "#f8fbff",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 12,
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#64748b", fontWeight: 700 }}>
-                    <Files size={16} />
-                    Resource Count
-                  </div>
-                  <strong style={{ color: "#0f172a" }}>{item.resource_count ?? 0}</strong>
-                </div>
+                ))}
               </div>
 
               <button
@@ -135,6 +126,9 @@ const Resources = () => {
                   justifyContent: "center",
                   gap: 8,
                   cursor: "pointer",
+                  boxShadow: isDark
+                    ? "0 12px 28px rgba(29,78,216,0.28)"
+                    : "0 10px 24px rgba(37,99,235,0.22)",
                 }}
               >
                 Open Details

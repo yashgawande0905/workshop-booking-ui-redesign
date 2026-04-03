@@ -2,8 +2,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Lock, Mail, Moon, SunMedium } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 
 const FloatingParticle = ({ delay, x, y, size }) => (
   <motion.div
@@ -24,6 +25,7 @@ const FloatingParticle = ({ delay, x, y, size }) => (
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { isDark, toggleTheme, theme } = useTheme();
   const text = "Access workshops, resources, and tools - all in one place.";
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -74,7 +76,8 @@ const Login = () => {
         width: isMobile ? "100vw" : "100%",
         boxSizing: "border-box",
         fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
-        background: isMobile ? "linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%)" : "transparent",
+        background: isMobile ? "var(--shell-bg)" : "transparent",
+        color: "var(--shell-text)",
       }}
     >
       {!isMobile && (
@@ -228,6 +231,31 @@ const Login = () => {
           boxSizing: "border-box",
         }}
       >
+        <button
+          type="button"
+          onClick={toggleTheme}
+          aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+          style={{
+            position: "absolute",
+            top: isMobile ? 18 : 22,
+            right: isMobile ? 18 : 22,
+            width: 42,
+            height: 42,
+            borderRadius: 14,
+            border: "1px solid var(--panel-border)",
+            background: "var(--panel-strong)",
+            color: "var(--shell-text)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: "var(--shadow-soft)",
+            zIndex: 15,
+          }}
+        >
+          {isDark ? <SunMedium size={18} /> : <Moon size={18} />}
+        </button>
+
         {!isMobile && (
           <div
             style={{
@@ -260,9 +288,9 @@ const Login = () => {
               position: "relative",
               padding: isMobile ? "32px 22px 28px" : 0,
               borderRadius: isMobile ? 28 : 0,
-              background: isMobile ? "rgba(255,255,255,0.94)" : "transparent",
-              boxShadow: isMobile ? "0 22px 60px rgba(15,23,42,0.12)" : "none",
-              border: isMobile ? "1px solid rgba(148,163,184,0.18)" : "none",
+              background: isMobile ? "var(--panel-strong)" : "transparent",
+              boxShadow: isMobile ? "var(--shadow-strong)" : "none",
+              border: isMobile ? "1px solid var(--panel-border)" : "none",
               backdropFilter: isMobile ? "blur(16px)" : "none",
               display: "flex",
               flexDirection: "column",
@@ -290,7 +318,7 @@ const Login = () => {
                 style={{
                   fontSize: isMobile ? "2rem" : "2.2rem",
                   fontWeight: 800,
-                  color: "#0f172a",
+                  color: "var(--shell-text)",
                   letterSpacing: "-0.03em",
                   textAlign: isMobile ? "center" : "left",
                   margin: 0,
@@ -318,7 +346,7 @@ const Login = () => {
               <motion.p
                 style={{
                   fontSize: 15,
-                  color: "#64748b",
+                  color: "var(--muted-text)",
                   marginBottom: 36,
                   lineHeight: 1.5,
                 }}
@@ -350,7 +378,7 @@ const Login = () => {
                   gap: 8,
                   fontSize: 14,
                   fontWeight: 600,
-                  color: "#1e293b",
+                  color: "var(--secondary-text)",
                   marginBottom: 8,
                   letterSpacing: "0.01em",
                 }}
@@ -383,9 +411,15 @@ const Login = () => {
                     padding: "0 52px 0 16px",
                     borderRadius: 14,
                     border:
-                      focusedField === "email" ? "2px solid #3b82f6" : "2px solid #e2e8f0",
-                    background: focusedField === "email" ? "#ffffff" : "#f8fafc",
-                    color: "#0f172a",
+                      focusedField === "email" ? "2px solid #3b82f6" : "2px solid var(--soft-border)",
+                    background: focusedField === "email"
+                      ? isDark
+                        ? "rgba(15,23,42,0.92)"
+                        : "#ffffff"
+                      : isDark
+                        ? "rgba(15,23,42,0.72)"
+                        : "var(--panel-muted)",
+                    color: "var(--shell-text)",
                     fontSize: 15,
                     fontWeight: 500,
                     outline: "none",
@@ -411,7 +445,7 @@ const Login = () => {
                   gap: 8,
                   fontSize: 14,
                   fontWeight: 600,
-                  color: "#1e293b",
+                  color: "var(--secondary-text)",
                   marginBottom: 8,
                   letterSpacing: "0.01em",
                 }}
@@ -446,9 +480,15 @@ const Login = () => {
                     border:
                       focusedField === "password"
                         ? "2px solid #3b82f6"
-                        : "2px solid #e2e8f0",
-                    background: focusedField === "password" ? "#ffffff" : "#f8fafc",
-                    color: "#0f172a",
+                        : "2px solid var(--soft-border)",
+                    background: focusedField === "password"
+                      ? isDark
+                        ? "rgba(15,23,42,0.92)"
+                        : "#ffffff"
+                      : isDark
+                        ? "rgba(15,23,42,0.72)"
+                        : "var(--panel-muted)",
+                    color: "var(--shell-text)",
                     fontSize: 15,
                     fontWeight: 500,
                     outline: "none",
@@ -481,7 +521,7 @@ const Login = () => {
                     cursor: "pointer",
                     padding: 0,
                     margin: 0,
-                    color: "#64748b",
+                    color: "var(--muted-text)",
                   }}
                 >
                   {showPassword ? (
@@ -637,6 +677,7 @@ const Login = () => {
               textAlign: "center",
               fontSize: 12,
               color: "#94a3b8",
+              color: "var(--muted-text)",
               marginTop: isMobile ? 24 : 40,
               fontWeight: 500,
               letterSpacing: "0.02em",

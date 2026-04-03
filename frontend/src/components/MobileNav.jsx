@@ -1,5 +1,6 @@
 import { BarChart3, BookOpenText, Home, Layers3, UserRound } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useTheme } from "../context/ThemeContext";
 
 const items = [
   { to: "/dashboard", label: "Home", icon: Home },
@@ -11,6 +12,7 @@ const items = [
 
 const MobileNav = () => {
   const location = useLocation();
+  const { isDark } = useTheme();
 
   return (
     <nav
@@ -22,10 +24,14 @@ const MobileNav = () => {
         zIndex: 40,
         padding: "10px 8px",
         borderRadius: 24,
-        background: "rgba(15,23,42,0.92)",
+        background: isDark ? "rgba(15,23,42,0.92)" : "rgba(255,255,255,0.88)",
         backdropFilter: "blur(16px)",
-        border: "1px solid rgba(255,255,255,0.08)",
-        boxShadow: "0 22px 50px rgba(15,23,42,0.24)",
+        border: isDark
+          ? "1px solid rgba(255,255,255,0.08)"
+          : "1px solid rgba(148,163,184,0.16)",
+        boxShadow: isDark
+          ? "0 22px 50px rgba(15,23,42,0.24)"
+          : "0 18px 40px rgba(15,23,42,0.12)",
       }}
     >
       <div
@@ -47,8 +53,10 @@ const MobileNav = () => {
                 minHeight: 60,
                 borderRadius: 18,
                 textDecoration: "none",
-                color: active ? "#ffffff" : "rgba(255,255,255,0.72)",
-                background: active ? "linear-gradient(135deg, #2563eb, #60a5fa)" : "transparent",
+                color: active ? "#ffffff" : isDark ? "rgba(255,255,255,0.74)" : "#475569",
+                background: active
+                  ? "linear-gradient(135deg, #2563eb, #60a5fa)"
+                  : "transparent",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
@@ -57,6 +65,7 @@ const MobileNav = () => {
                 fontSize: 11,
                 fontWeight: 800,
                 letterSpacing: "0.02em",
+                transition: "background 0.2s ease, color 0.2s ease, transform 0.2s ease",
               }}
             >
               <Icon size={18} />

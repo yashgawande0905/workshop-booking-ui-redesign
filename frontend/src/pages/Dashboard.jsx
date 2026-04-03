@@ -1,12 +1,8 @@
 import { motion } from "framer-motion";
-import {
-  CalendarCheck2,
-  Clock3,
-  Layers3,
-  Users,
-} from "lucide-react";
+import { CalendarCheck2, Clock3, Layers3, Users } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import usePortalData from "../hooks/usePortalData";
 
 const statCards = [
@@ -47,6 +43,7 @@ const formatDate = (dateValue) => {
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const { portalData: dashboardData, loading, error } = usePortalData();
 
   const chartData = dashboardData.workshop_types.map((item) => ({
@@ -62,18 +59,59 @@ const Dashboard = () => {
         style={{
           padding: "28px 24px",
           borderRadius: 28,
-          background: "rgba(255,255,255,0.96)",
-          border: "1px solid rgba(148,163,184,0.16)",
-          boxShadow: "0 20px 48px rgba(15,23,42,0.06)",
+          background: "var(--panel-strong)",
+          border: "1px solid var(--panel-border)",
+          boxShadow: "var(--shadow-strong)",
         }}
       >
-        <p style={{ margin: 0, fontSize: 13, fontWeight: 800, letterSpacing: "0.06em", color: "#2563eb" }}>
-          DASHBOARD
-        </p>
-        <h1 style={{ margin: "10px 0 12px", fontSize: "clamp(2rem, 4vw, 2.8rem)", lineHeight: 1.1, color: "#0f172a" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 16,
+            flexWrap: "wrap",
+          }}
+        >
+          <p style={{ margin: 0, fontSize: 13, fontWeight: 800, letterSpacing: "0.06em", color: "var(--accent)" }}>
+            DASHBOARD
+          </p>
+          <div
+            style={{
+              width: 58,
+              height: 58,
+              borderRadius: 18,
+              background: isDark ? "rgba(15,23,42,0.72)" : "rgba(255,255,255,0.92)",
+              border: "1px solid var(--panel-border)",
+              boxShadow: "var(--shadow-soft)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <img
+              src="/iitb-logo.png"
+              alt="IIT Bombay logo"
+              style={{
+                width: 34,
+                height: 34,
+                objectFit: "contain",
+              }}
+            />
+          </div>
+        </div>
+        <h1
+          style={{
+            margin: "10px 0 12px",
+            fontSize: "clamp(2rem, 4vw, 2.8rem)",
+            lineHeight: 1.1,
+            color: "var(--shell-text)",
+          }}
+        >
           Welcome, {user?.name || "Student"}.
         </h1>
-        <p style={{ margin: 0, maxWidth: 760, lineHeight: 1.7, color: "#64748b" }}>
+        <p style={{ margin: 0, maxWidth: 760, lineHeight: 1.7, color: "var(--muted-text)" }}>
           This page gives a quick view of current workshops, pending requests, and the workshop
           types available in the system.
         </p>
@@ -112,9 +150,9 @@ const Dashboard = () => {
             style={{
               padding: 22,
               borderRadius: 26,
-              background: "rgba(255,255,255,0.94)",
-              border: "1px solid rgba(148,163,184,0.16)",
-              boxShadow: "0 20px 48px rgba(15,23,42,0.06)",
+              background: "var(--panel-bg)",
+              border: "1px solid var(--panel-border)",
+              boxShadow: "var(--shadow-soft)",
             }}
           >
             <div
@@ -132,8 +170,8 @@ const Dashboard = () => {
             >
               <Icon size={22} />
             </div>
-            <p style={{ margin: 0, color: "#64748b", fontWeight: 600 }}>{label}</p>
-            <h2 style={{ margin: "8px 0 0", fontSize: "2.1rem", color: "#0f172a" }}>
+            <p style={{ margin: 0, color: "var(--muted-text)", fontWeight: 600 }}>{label}</p>
+            <h2 style={{ margin: "8px 0 0", fontSize: "2.1rem", color: "var(--shell-text)" }}>
               {loading ? "--" : dashboardData.stats[key] ?? 0}
             </h2>
           </motion.div>
@@ -155,23 +193,25 @@ const Dashboard = () => {
           style={{
             padding: 24,
             borderRadius: 28,
-            background: "rgba(255,255,255,0.94)",
-            border: "1px solid rgba(148,163,184,0.16)",
-            boxShadow: "0 18px 45px rgba(15,23,42,0.06)",
+            background: "var(--panel-bg)",
+            border: "1px solid var(--panel-border)",
+            boxShadow: "var(--shadow-soft)",
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
             <div>
-              <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: "#2563eb", letterSpacing: "0.05em" }}>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: "var(--accent)", letterSpacing: "0.05em" }}>
                 WORKSHOPS
               </p>
-              <h3 style={{ margin: "8px 0 0", fontSize: "1.4rem", color: "#0f172a" }}>Recent workshops</h3>
+              <h3 style={{ margin: "8px 0 0", fontSize: "1.4rem", color: "var(--shell-text)" }}>
+                Recent workshops
+              </h3>
             </div>
           </div>
 
           <div style={{ display: "grid", gap: 14, marginTop: 20 }}>
             {loading ? (
-              <div style={{ color: "#64748b", fontWeight: 600 }}>Loading workshops...</div>
+              <div style={{ color: "var(--muted-text)", fontWeight: 600 }}>Loading workshops...</div>
             ) : (
               dashboardData.workshops.map((item) => (
                 <div
@@ -179,8 +219,10 @@ const Dashboard = () => {
                   style={{
                     padding: 18,
                     borderRadius: 22,
-                    border: "1px solid rgba(148,163,184,0.16)",
-                    background: "linear-gradient(180deg, #f8fbff 0%, #ffffff 100%)",
+                    border: "1px solid var(--panel-border)",
+                    background: isDark
+                      ? "linear-gradient(180deg, rgba(15,23,42,0.9) 0%, rgba(15,23,42,0.76) 100%)"
+                      : "linear-gradient(180deg, #f8fbff 0%, #ffffff 100%)",
                   }}
                 >
                   <div
@@ -193,8 +235,8 @@ const Dashboard = () => {
                     }}
                   >
                     <div>
-                      <h4 style={{ margin: 0, fontSize: "1.08rem", color: "#0f172a" }}>{item.title}</h4>
-                      <p style={{ margin: "8px 0 0", color: "#64748b", lineHeight: 1.6 }}>
+                      <h4 style={{ margin: 0, fontSize: "1.08rem", color: "var(--shell-text)" }}>{item.title}</h4>
+                      <p style={{ margin: "8px 0 0", color: "var(--muted-text)", lineHeight: 1.6 }}>
                         {formatDate(item.date)} • {item.duration} day(s)
                       </p>
                     </div>
@@ -235,23 +277,31 @@ const Dashboard = () => {
                       style={{
                         padding: "12px 14px",
                         borderRadius: 16,
-                        background: "#ffffff",
-                        border: "1px solid rgba(148,163,184,0.12)",
+                        background: "var(--panel-strong)",
+                        border: "1px solid var(--panel-border)",
                       }}
                     >
-                      <p style={{ margin: 0, fontSize: 12, color: "#94a3b8", fontWeight: 700 }}>COORDINATOR</p>
-                      <p style={{ margin: "6px 0 0", color: "#0f172a", fontWeight: 700 }}>{item.coordinator}</p>
+                      <p style={{ margin: 0, fontSize: 12, color: "var(--muted-text)", fontWeight: 700 }}>
+                        COORDINATOR
+                      </p>
+                      <p style={{ margin: "6px 0 0", color: "var(--shell-text)", fontWeight: 700 }}>
+                        {item.coordinator}
+                      </p>
                     </div>
                     <div
                       style={{
                         padding: "12px 14px",
                         borderRadius: 16,
-                        background: "#ffffff",
-                        border: "1px solid rgba(148,163,184,0.12)",
+                        background: "var(--panel-strong)",
+                        border: "1px solid var(--panel-border)",
                       }}
                     >
-                      <p style={{ margin: 0, fontSize: 12, color: "#94a3b8", fontWeight: 700 }}>INSTRUCTOR</p>
-                      <p style={{ margin: "6px 0 0", color: "#0f172a", fontWeight: 700 }}>{item.instructor}</p>
+                      <p style={{ margin: 0, fontSize: 12, color: "var(--muted-text)", fontWeight: 700 }}>
+                        INSTRUCTOR
+                      </p>
+                      <p style={{ margin: "6px 0 0", color: "var(--shell-text)", fontWeight: 700 }}>
+                        {item.instructor}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -267,22 +317,38 @@ const Dashboard = () => {
           style={{
             padding: 24,
             borderRadius: 28,
-            background: "rgba(255,255,255,0.94)",
-            border: "1px solid rgba(148,163,184,0.16)",
-            boxShadow: "0 18px 45px rgba(15,23,42,0.06)",
+            background: "var(--panel-bg)",
+            border: "1px solid var(--panel-border)",
+            boxShadow: "var(--shadow-soft)",
           }}
         >
-          <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: "#2563eb", letterSpacing: "0.05em" }}>
+          <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: "var(--accent)", letterSpacing: "0.05em" }}>
             WORKSHOP TYPES
           </p>
-          <h3 style={{ margin: "8px 0 0", fontSize: "1.4rem", color: "#0f172a" }}>Available workshop types</h3>
+          <h3 style={{ margin: "8px 0 0", fontSize: "1.4rem", color: "var(--shell-text)" }}>
+            Available workshop types
+          </h3>
 
           <div style={{ width: "100%", height: 260, marginTop: 20 }}>
             <ResponsiveContainer>
               <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="name" tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis allowDecimals={false} tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  vertical={false}
+                  stroke={isDark ? "rgba(148,163,184,0.2)" : "#e2e8f0"}
+                />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fill: isDark ? "#94a3b8" : "#64748b", fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  tick={{ fill: isDark ? "#94a3b8" : "#64748b", fontSize: 12 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
                 <Tooltip />
                 <Bar dataKey="duration" radius={[10, 10, 0, 0]} fill="url(#barGradient)" />
                 <defs>
@@ -302,15 +368,15 @@ const Dashboard = () => {
                 style={{
                   padding: "14px 16px",
                   borderRadius: 18,
-                  background: "#f8fbff",
-                  border: "1px solid rgba(148,163,184,0.14)",
+                  background: "var(--panel-muted)",
+                  border: "1px solid var(--panel-border)",
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
-                  <h4 style={{ margin: 0, fontSize: "1rem", color: "#0f172a" }}>{item.name}</h4>
-                  <div style={{ color: "#2563eb", fontWeight: 800 }}>{item.duration} day(s)</div>
+                  <h4 style={{ margin: 0, fontSize: "1rem", color: "var(--shell-text)" }}>{item.name}</h4>
+                  <div style={{ color: "var(--accent)", fontWeight: 800 }}>{item.duration} day(s)</div>
                 </div>
-                <p style={{ margin: "8px 0 0", color: "#64748b", lineHeight: 1.6 }}>
+                <p style={{ margin: "8px 0 0", color: "var(--muted-text)", lineHeight: 1.6 }}>
                   {item.description}
                 </p>
               </div>
