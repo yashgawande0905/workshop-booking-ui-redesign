@@ -32,8 +32,8 @@ const PageLoader = () => (
   </div>
 );
 
-const ProtectedPage = ({ children }) => (
-  <ProtectedRoute>
+const ProtectedPage = ({ children, allowedRoles }) => (
+  <ProtectedRoute allowedRoles={allowedRoles}>
     <Layout>{children}</Layout>
   </ProtectedRoute>
 );
@@ -76,7 +76,7 @@ function App() {
               <Route
                 path="/insights"
                 element={
-                  <ProtectedPage>
+                  <ProtectedPage allowedRoles={["Coordinator", "Admin"]}>
                     <Insights />
                   </ProtectedPage>
                 }

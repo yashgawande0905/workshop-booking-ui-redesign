@@ -73,6 +73,18 @@ const Sidebar = () => {
     return null;
   }
 
+  const visibleGroups = navGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => {
+        if (item.to === "/insights" && user?.role === "Student") {
+          return false;
+        }
+        return true;
+      }),
+    }))
+    .filter((group) => group.items.length > 0);
+
   return (
     <motion.aside
       variants={sidebarMotion}
@@ -150,7 +162,7 @@ const Sidebar = () => {
       </motion.div>
 
       <div style={{ display: "grid", gap: 16 }}>
-        {navGroups.map((group, groupIndex) => (
+        {visibleGroups.map((group, groupIndex) => (
           <motion.div
             key={group.title}
             custom={groupIndex}
@@ -327,7 +339,7 @@ const Sidebar = () => {
                 textOverflow: "ellipsis",
               }}
             >
-              {user?.email || "portal user"}
+              {user?.role || "Student"} · {user?.email || "portal user"}
             </div>
           </div>
         </div>

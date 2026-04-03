@@ -30,6 +30,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
   const [hoveredLink, setHoveredLink] = useState(null);
@@ -53,13 +54,21 @@ const Login = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
+    setLoginError("");
     setLoading(true);
 
     setTimeout(() => {
-      login({
-        name: email.split("@")[0] || "Student",
+      const result = login({
         email,
+        password,
       });
+
+      if (!result.ok) {
+        setLoading(false);
+        setLoginError(result.message);
+        return;
+      }
+
       navigate("/dashboard");
     }, 1500);
   };
@@ -636,6 +645,22 @@ const Login = () => {
               )}
             </motion.button>
 
+            {loginError ? (
+              <div
+                style={{
+                  marginTop: 16,
+                  padding: "12px 14px",
+                  borderRadius: 14,
+                  background: "rgba(225,29,72,0.08)",
+                  color: "#be123c",
+                  fontWeight: 700,
+                  lineHeight: 1.5,
+                }}
+              >
+                {loginError}
+              </div>
+            ) : null}
+
             <div
               style={{
                 display: "flex",
@@ -690,7 +715,19 @@ const Login = () => {
                 >
                   Forgot Password?
                 </motion.button>
-              </div>
+            </div>
+
+            <p
+              style={{
+                margin: "14px 0 0",
+                color: isDark ? "#94a3b8" : "#64748b",
+                fontSize: 12.5,
+                lineHeight: 1.6,
+                textAlign: isMobile ? "center" : "left",
+              }}
+            >
+              Demo sign in: `student@iitb.ac.in / student123`, `coordinator@fossee.in / coord123`, or `admin@fossee.in / admin123`
+            </p>
           </motion.form>
 
           <motion.p
@@ -698,6 +735,7 @@ const Login = () => {
               textAlign: "center",
               fontSize: 12,
               color: isDark ? "#94a3b8" : "#94a3b8",
+              marginTop: isMobile ? 24 : 40,
               marginTop: isMobile ? 24 : 40,
               fontWeight: 500,
               letterSpacing: "0.02em",

@@ -57,6 +57,7 @@ const Navbar = () => {
         id: "pending",
         title: `${pendingCount} pending request${pendingCount > 1 ? "s" : ""}`,
         text: "Review the latest workshop proposals waiting for approval.",
+        to: user?.role === "Admin" ? "/workshops" : "/dashboard",
       });
     }
 
@@ -65,6 +66,7 @@ const Navbar = () => {
         id: "upcoming",
         title: `${upcomingWorkshop.title} is coming up`,
         text: `${formatDate(upcomingWorkshop.date)} with ${upcomingWorkshop.coordinator}`,
+        to: "/workshops",
       });
     }
 
@@ -73,11 +75,17 @@ const Navbar = () => {
         id: "types",
         title: `${workshopTypes} workshop type${workshopTypes > 1 ? "s" : ""} available`,
         text: "The catalog is ready for new workshop bookings.",
+        to: "/resources",
       });
     }
 
     return items.slice(0, 3);
-  }, [portalData]);
+  }, [portalData, user?.role]);
+
+  const handleNotificationClick = (destination) => {
+    setShowNotifications(false);
+    navigate(destination);
+  };
 
   return (
     <header
@@ -124,6 +132,9 @@ const Navbar = () => {
           >
             Welcome back, {user?.name || "Student"}
           </h2>
+          <p style={{ margin: "6px 0 0", color: "var(--muted-text)", fontWeight: 700, fontSize: 12.5 }}>
+            {user?.role || "Student"} · {user?.profession || "Portal user"}
+          </p>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -251,13 +262,18 @@ const Navbar = () => {
                   <div style={{ display: "grid", gap: 10 }}>
                     {notifications.length > 0 ? (
                       notifications.map((item) => (
-                        <div
+                        <button
                           key={item.id}
+                          type="button"
+                          onClick={() => handleNotificationClick(item.to)}
                           style={{
                             padding: "12px 13px",
                             borderRadius: 16,
                             background: "var(--panel-muted)",
                             border: "1px solid var(--panel-border)",
+                            textAlign: "left",
+                            cursor: "pointer",
+                            width: "100%",
                           }}
                         >
                           <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--shell-text)" }}>
@@ -266,7 +282,7 @@ const Navbar = () => {
                           <div style={{ fontSize: 12.5, color: "var(--muted-text)", lineHeight: 1.55, marginTop: 4 }}>
                             {item.text}
                           </div>
-                        </div>
+                        </button>
                       ))
                     ) : (
                       <div

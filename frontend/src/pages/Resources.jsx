@@ -1,11 +1,108 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowUpRight, BookOpenText, Files, Layers3 } from "lucide-react";
+import { ArrowUpRight, BookOpenText, Files, Layers3, Pencil, PlusCircle, Trash2 } from "lucide-react";
+import ActionToast from "../components/ActionToast";
+import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import usePortalData from "../hooks/usePortalData";
+import { deleteWorkshopType, saveWorkshopType, updateWorkshopType } from "../utils/portalStorage";
 
 const Resources = () => {
   const { portalData, loading, error } = usePortalData();
+  const { user } = useAuth();
   const { isDark } = useTheme();
+  const [typeForm, setTypeForm] = useState({
+    name: "",
+    duration: "",
+    description: "",
+    resource_count: "",
+    level: "Beginner",
+  });
+  const [editingTypeId, setEditingTypeId] = useState(null);
+  const [typePendingDelete, setTypePendingDelete] = useState(null);
+  const [toast, setToast] = useState({ message: "", tone: "success" });
+  const canManageTypes = user?.role === "Coordinator" || user?.role === "Admin";
+
+  const inputStyle = {
+    width: "100%",
+    height: 48,
+    padding: "0 14px",
+    borderRadius: 14,
+    border: "1px solid var(--panel-border)",
+    background: isDark ? "rgba(15,23,42,0.72)" : "#ffffff",
+    color: "var(--shell-text)",
+    outline: "none",
+    boxSizing: "border-box",
+  };
+
+  const handleTypeSubmit = (e) => {
+    e.preventDefault();
+    const payload = {
+      name: typeForm.name,
+      duration: Number(typeForm.duration),
+      description: typeForm.description,
+      resource_count: Number(typeForm.resource_count || 0),
+      level: typeForm.level,
+      created_by: user?.name || "Coordinator",
+    };
+
+    if (editingTypeId) {
+      updateWorkshopType(editingTypeId, payload);
+    } else {
+      saveWorkshopType(payload);
+    }
+
+    setTypeForm({
+      name: "",
+      duration: "",
+      description: "",
+      resource_count: "",
+      level: "Beginner",
+    });
+    setEditingTypeId(null);
+    setToast({
+      message: editingTypeId
+        ? "Workshop type updated and saved."
+        : "Workshop type added and available for coordinator workshop creation.",
+      tone: editingTypeId ? "info" : "success",
+    });
+  };
+
+  const startEditingType = (item) => {
+    setEditingTypeId(item.id);
+    setTypeForm({
+      name: item.name || "",
+      duration: String(item.duration || ""),
+      description: item.description || "",
+      resource_count: String(item.resource_count ?? ""),
+      level: item.level || "Beginner",
+    });
+    setToast({ message: `Editing "${item.name}"`, tone: "info" });
+  };
+
+  const resetTypeForm = () => {
+    setEditingTypeId(null);
+    setTypeForm({
+      name: "",
+      duration: "",
+      description: "",
+      resource_count: "",
+      level: "Beginner",
+    });
+  };
+
+  const confirmDeleteType = () => {
+    if (!typePendingDelete) {
+      return;
+    }
+
+    deleteWorkshopType(typePendingDelete.id);
+    if (editingTypeId === typePendingDelete.id) {
+      resetTypeForm();
+    }
+    setToast({ message: `Workshop type "${typePendingDelete.name}" deleted.`, tone: "danger" });
+    setTypePendingDelete(null);
+  };
 
   return (
     <div style={{ maxWidth: 1180, margin: "0 auto" }}>
@@ -31,9 +128,123 @@ const Resources = () => {
         </p>
       </motion.section>
 
-      {error && (
-        <div style={{ marginTop: 18, color: "#be123c", fontWeight: 700 }}>{error}</div>
-      )}
+      {canManageTypes ? (
+        <motion.section
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
+          style={{
+            marginTop: 20,
+            padding: 24,
+            borderRadius: 28,
+            background: "var(--panel-bg)",
+            border: "1px solid var(--panel-border)",
+            boxShadow: "var(--shadow-soft)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+            <PlusCircle size={20} color="#2563eb" />
+            <h3 style={{ margin: 0, color: "var(--shell-text)", fontSize: "1.35rem" }}>Coordinator Type Setup</h3>
+          </div>
+          <p style={{ margin: "0 0 18px", color: "var(--muted-text)", lineHeight: 1.65 }}>
+            Add a new workshop type with duration, level, description, and resource count so it can be used in coordinator workshop planning.
+          </p>
+
+          <form
+            onSubmit={handleTypeSubmit}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: 14,
+            }}
+          >
+            <input
+              value={typeForm.name}
+              onChange={(e) => setTypeForm((current) => ({ ...current, name: e.target.value }))}
+              placeholder="Workshop type name"
+              required
+              style={inputStyle}
+            />
+            <input
+              type="number"
+              min="1"
+              value={typeForm.duration}
+              onChange={(e) => setTypeForm((current) => ({ ...current, duration: e.target.value }))}
+              placeholder="Duration in days"
+              required
+              style={inputStyle}
+            />
+            <select
+              value={typeForm.level}
+              onChange={(e) => setTypeForm((current) => ({ ...current, level: e.target.value }))}
+              style={inputStyle}
+            >
+              {["Beginner", "Intermediate", "Advanced"].map((level) => (
+                <option key={level} value={level}>
+                  {level}
+                </option>
+              ))}
+            </select>
+            <input
+              type="number"
+              min="0"
+              value={typeForm.resource_count}
+              onChange={(e) => setTypeForm((current) => ({ ...current, resource_count: e.target.value }))}
+              placeholder="Resource count"
+              style={inputStyle}
+            />
+            <textarea
+              value={typeForm.description}
+              onChange={(e) => setTypeForm((current) => ({ ...current, description: e.target.value }))}
+              placeholder="What is covered in this workshop type?"
+              required
+              style={{
+                ...inputStyle,
+                minHeight: 110,
+                padding: 14,
+                resize: "vertical",
+                gridColumn: "1 / -1",
+              }}
+            />
+            <button
+              type="submit"
+              style={{
+                height: 48,
+                borderRadius: 14,
+                border: "none",
+                background: "linear-gradient(135deg, #2563eb, #60a5fa)",
+                color: "#fff",
+                fontWeight: 800,
+                cursor: "pointer",
+                gridColumn: "1 / -1",
+              }}
+            >
+              {editingTypeId ? "Update Workshop Type" : "Add Workshop Type"}
+            </button>
+            {editingTypeId ? (
+              <button
+                type="button"
+                onClick={resetTypeForm}
+                style={{
+                  height: 48,
+                  borderRadius: 14,
+                  border: "1px solid var(--panel-border)",
+                  background: "var(--panel-strong)",
+                  color: "var(--shell-text)",
+                  fontWeight: 800,
+                  cursor: "pointer",
+                  gridColumn: "1 / -1",
+                }}
+              >
+                Cancel Editing
+              </button>
+            ) : null}
+          </form>
+
+        </motion.section>
+      ) : null}
+
+      {error && <div style={{ marginTop: 18, color: "#be123c", fontWeight: 700 }}>{error}</div>}
 
       <section
         style={{
@@ -88,6 +299,7 @@ const Resources = () => {
                 {[
                   { icon: Layers3, label: "Duration", value: `${item.duration} day(s)` },
                   { icon: Files, label: "Resource Count", value: item.resource_count ?? 0 },
+                  { icon: BookOpenText, label: "Level", value: item.level || "Standard" },
                 ].map(({ icon: Icon, label, value }) => (
                   <div
                     key={label}
@@ -134,10 +346,129 @@ const Resources = () => {
                 Open Details
                 <ArrowUpRight size={16} />
               </button>
+
+              {canManageTypes && item.id?.startsWith("custom-type-") ? (
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    onClick={() => startEditingType(item)}
+                    style={{
+                      flex: 1,
+                      height: 42,
+                      borderRadius: 12,
+                      border: "1px solid rgba(37,99,235,0.24)",
+                      background: "var(--panel-strong)",
+                      color: "var(--accent)",
+                      fontWeight: 800,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 8,
+                    }}
+                  >
+                    <Pencil size={15} />
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTypePendingDelete(item)}
+                    style={{
+                      flex: 1,
+                      height: 42,
+                      borderRadius: 12,
+                      border: "1px solid rgba(220,38,38,0.22)",
+                      background: "rgba(254,242,242,0.9)",
+                      color: "#dc2626",
+                      fontWeight: 800,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 8,
+                    }}
+                  >
+                    <Trash2 size={15} />
+                    Delete
+                  </button>
+                </div>
+              ) : null}
             </motion.article>
           ))
         )}
       </section>
+
+      {typePendingDelete ? (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(15,23,42,0.45)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 16,
+            zIndex: 60,
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: 420,
+              padding: 24,
+              borderRadius: 24,
+              background: "var(--panel-strong)",
+              border: "1px solid var(--panel-border)",
+              boxShadow: "var(--shadow-strong)",
+            }}
+          >
+            <h3 style={{ margin: 0, color: "var(--shell-text)" }}>Delete workshop type?</h3>
+            <p style={{ margin: "12px 0 0", color: "var(--muted-text)", lineHeight: 1.65 }}>
+              This will remove <strong style={{ color: "var(--shell-text)" }}>{typePendingDelete.name}</strong> from
+              the coordinator-created workshop type list.
+            </p>
+            <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
+              <button
+                type="button"
+                onClick={() => setTypePendingDelete(null)}
+                style={{
+                  flex: 1,
+                  height: 44,
+                  borderRadius: 14,
+                  border: "1px solid var(--panel-border)",
+                  background: "var(--panel-bg)",
+                  color: "var(--shell-text)",
+                  fontWeight: 800,
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteType}
+                style={{
+                  flex: 1,
+                  height: 44,
+                  borderRadius: 14,
+                  border: "none",
+                  background: "#dc2626",
+                  color: "#fff",
+                  fontWeight: 800,
+                  cursor: "pointer",
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      <ActionToast
+        message={toast.message}
+        tone={toast.tone}
+        onClose={() => setToast({ message: "", tone: "success" })}
+      />
     </div>
   );
 };
