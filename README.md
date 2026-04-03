@@ -130,27 +130,16 @@ venv\Scripts\python.exe manage.py check
 
 ## Screenshots
 
-Add your screenshots in the `screenshots/` folder before submitting.
-
-Recommended files:
-- `screenshots/before-login.png`
-- `screenshots/after-login.png`
-- `screenshots/before-dashboard.png`
-- `screenshots/after-dashboard.png`
-- `screenshots/mobile-login.png`
-- `screenshots/mobile-dashboard.png`
-
-Then update the section below with the real images.
-
 ### Before
-![Before Login](./screenshots/before-login.png)
-![Before Dashboard](./screenshots/before-dashboard.png)
+![Before Login](./frontend/public/Before%20Login.png)
+![Before Dashboard](./frontend/public/Before%20Dashboard%201.png)
+![Before Dashboard](./frontend/public/Before%20Dashboard%202.png)
 
 ### After
-![After Login](./screenshots/after-login.png)
-![After Dashboard](./screenshots/after-dashboard.png)
-![Mobile Login](./screenshots/mobile-login.png)
-![Mobile Dashboard](./screenshots/mobile-dashboard.png)
+![After Login](./frontend/public/After%20Login.png)
+![After Dashboard](./frontend/public/After%20Dashboard.png)
+![Mobile Login](./frontend/public/Mobile%20Login.png)
+![Mobile Dashboard](./frontend/public/Mobile%20Dashboard.png)
 
 ## Notes
 
