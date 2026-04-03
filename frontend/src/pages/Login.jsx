@@ -73,14 +73,10 @@ const Login = () => {
         overflow: "hidden",
         alignItems: isMobile ? "center" : "stretch",
         justifyContent: isMobile ? "center" : "flex-start",
-        width: isMobile ? "100vw" : "100%",
+        width: "100%",
         boxSizing: "border-box",
         fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
-        background: isMobile
-          ? isDark
-            ? "linear-gradient(180deg, #09111f 0%, #0f172a 100%)"
-            : "linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%)"
-          : "transparent",
+        background: "transparent",
         color: "#0f172a",
       }}
     >
@@ -229,9 +225,13 @@ const Login = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: isDark
-            ? "linear-gradient(180deg, #0b1220 0%, #101a30 48%, #0f172a 100%)"
-            : "linear-gradient(180deg, #fafbff 0%, #f0f4ff 100%)",
+          background: isMobile
+            ? `linear-gradient(${isDark ? "rgba(2,6,23,0.72), rgba(15,23,42,0.78)" : "rgba(15,23,42,0.46), rgba(30,41,59,0.52)"}), url('/iitb.jpeg')`
+            : isDark
+              ? "linear-gradient(180deg, #0b1220 0%, #101a30 48%, #0f172a 100%)"
+              : "linear-gradient(180deg, #fafbff 0%, #f0f4ff 100%)",
+          backgroundSize: isMobile ? "cover" : "auto",
+          backgroundPosition: isMobile ? "center" : "initial",
           padding: isMobile ? 0 : 48,
           position: "relative",
           boxSizing: "border-box",
@@ -276,6 +276,19 @@ const Login = () => {
           />
         )}
 
+        {isMobile && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: isDark
+                ? "radial-gradient(circle at top, rgba(96,165,250,0.14), transparent 42%)"
+                : "radial-gradient(circle at top, rgba(255,255,255,0.18), transparent 42%)",
+              pointerEvents: "none",
+            }}
+          />
+        )}
+
         <div
           style={{
             width: "100%",
@@ -291,15 +304,15 @@ const Login = () => {
         >
           <div
             style={{
-              width: isMobile ? "calc(100vw - 32px)" : "100%",
+              width: isMobile ? "100%" : "100%",
               maxWidth: isMobile ? 360 : 380,
               position: "relative",
               padding: isMobile ? "32px 22px 28px" : 0,
               borderRadius: isMobile ? 28 : 0,
               background: isMobile
                 ? isDark
-                  ? "rgba(15,23,42,0.88)"
-                  : "rgba(255,255,255,0.96)"
+                  ? "rgba(15,23,42,0.82)"
+                  : "rgba(255,255,255,0.95)"
                 : "transparent",
               boxShadow: isMobile
                 ? isDark
